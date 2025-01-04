@@ -7,7 +7,7 @@ const app = express()
 app.use(express.json())
 app.use(cors());
 
-const PORT = 3000
+const PORT = 4000
 const DATA_FILE = path.join(__dirname, 'todos.jsonl')
 
 function readTodos() {
@@ -66,16 +66,22 @@ app.put('/todo/:id', (req, res) => {
 })
 
 app.patch('/todo/:id', (req, res) => {
-  const todos = readTodos()
-  const index = todos.findIndex(t => t.id === req.params.id)
-  if (index === -1) {
-    return res.status(404).json({ error: 'Todo not found' })
-  }
-  todos[index].completed = true
-  writeTodos(todos)
-  res.json(todos[index])
+    const todos = readTodos();
+    const index = todos.findIndex(t => t.id === req.params.id);
+  
+    if (index === -1) {
+      return res.status(404).json({ error: 'Todo not found' });
+    }
+  
+    // 요청으로 전달된 completed 값을 업데이트
+    if (req.body.completed !== undefined) {
+      todos[index].completed = req.body.completed;
+    }
+  
+    writeTodos(todos);
+    res.json(todos[index]);
 })
-
+  
 app.delete('/todo/:id', (req, res) => {
   const todos = readTodos()
   const newTodos = todos.filter(t => t.id !== req.params.id)
